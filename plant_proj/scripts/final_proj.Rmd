@@ -53,10 +53,10 @@ glimpse(threats_data)
 ## Extinct Plants from 1960-1979
 ```{r sixties_plants}
 sixties <- threats_data %>%
-  filter(country == "United States",
-         year_last_seen == "1960-1979", 
-         red_list_category == "Extinct") %>%
-  slice_max(binomial_name, n = 12)
+  filter(country == "United States", #selects plants in US
+         year_last_seen == "1960-1979", #year range
+         red_list_category == "Extinct") %>% #selects extinct plants
+  slice_max(binomial_name, n = 12) #selects 12 rows
 ```
 
 ```{r, echo=FALSE}
@@ -68,8 +68,8 @@ sixties <- threats_data %>%
 
 ```{r mn_threat, fig.align='center', fig.width=5, fig.height=5}
 sixties %>%
-  kbl() %>%
-  kable_classic(full_width = F, html_font = "Cambria")
+  kbl() %>% #base cose for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
 ## Actions taken
@@ -85,17 +85,17 @@ sixties %>%
 
 ```{r actions1}
 actions1 <- action_data %>%
-  filter(country == "United States",
-         year_last_seen == "1960-1979", 
-         red_list_category == "Extinct",
-         binomial_name == "Melicope nealae") %>%
-  slice_max(binomial_name, n = 12)
+  filter(country == "United States", #selects plants in US
+         year_last_seen == "1960-1979", #year range
+         red_list_category == "Extinct", #selects entinct plants in range
+         binomial_name == "Melicope nealae") %>% #Filters for specific species
+  slice_max(binomial_name, n = 12) #selects 12 rows
 ```
 
 ```{r mn_actions}
 actions1 %>%
-  kbl() %>%
-  kable_classic(full_width = F, html_font = "Cambria")
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
 ```{r, echo=FALSE}
@@ -108,45 +108,52 @@ actions1 %>%
 ## Extinct Plants from 2000-2020
 ```{r twothousands}
 present_day <- threats_data %>%
-  filter(country == "United States",
-         year_last_seen == "2000-2020",
-         red_list_category == "Extinct") %>%
-  slice_max(binomial_name, n = 12)
+  filter(country == "United States", #selects plants in US
+         year_last_seen == "2000-2020", #year range
+         red_list_category == "Extinct") %>% #selects extinct plants
+  slice_max(binomial_name, n = 12) #selects 22 rows
 ```
 
 ```{r ws_threat, fig.align='center', fig.width=5, fig.height=5}
 present_day %>%
-  kbl() %>%
-  kable_classic(full_width = F, html_font = "Cambria")
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
 ## Actions taken
 
 ```{r}
 actions2 <- action_data %>%
-  filter(country == "United States",
-         year_last_seen == "2000-2020", 
-         red_list_category == "Extinct",
-         binomial_name == "Wikstroemia skottsbergiana") %>%
-  slice_max(binomial_name, n = 12)
+  filter(country == "United States", #seletcs plants in US
+         year_last_seen == "2000-2020", #year range
+         red_list_category == "Extinct", #selects extinct plants
+         binomial_name == "Wikstroemia skottsbergiana") %>% #selects specific species
+  slice_max(binomial_name, n = 12) #selects 12 rows
 ```
 
 ```{r ws_actions}
 actions2 %>%
-  kbl() %>%
-  kable_classic(full_width = F, html_font = "Cambria")
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
 # Multiple Species Analysis
 
 ```{r}
 threats_data %>%
-  count(year_last_seen)
+  count(year_last_seen) #displays year ranges
 ```
 
 ```{r}
+# single plant species taken from each year range
 multiple_plants <- threats_data %>%
-  filter(binomial_name == c("Acalypha rubrinervis", "Agelanthus rondensis", "Angraecum muscicolum", "Betula gynoterminalis", "Cestrum flavescens", "Magnolia emarginata", "Corypha taliera"))
+  filter(binomial_name == c("Acalypha rubrinervis", 
+                            "Agelanthus rondensis", 
+                            "Angraecum muscicolum", 
+                            "Betula gynoterminalis", 
+                            "Cestrum flavescens", 
+                            "Magnolia emarginata", 
+                            "Corypha taliera"))
 ```
 
 ```{r, echo=FALSE}
@@ -156,20 +163,21 @@ showtext_auto()
 
 ```{r}
 multiple_plants %>%
-  ggplot(aes(x = binomial_name,
-             y = year_last_seen,
-             fill = binomial_name,
-             color = binomial_name))+
-  geom_point(size = 4)+ #changes point size)+
-  labs(x = "Binomial Name",
-       y = "Year Last Seen",
-       fill = "Binomial Name:")+
-  theme_light()+
+  ggplot(aes(x = binomial_name, #x axis
+             y = year_last_seen, #y axis
+             fill = binomial_name, #point fill
+             color = binomial_name))+ #color fill
+  geom_point(size = 4)+ #changes point size
+  labs(x = "Binomial Name", #x axis
+       y = "Year Last Seen", #y axis
+       fill = "Binomial Name:")+ #fills points and renames legend
+  theme_light()+ #b/w theme
   theme(text = element_text(family = "baskerville"), #adds font
-        axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid")
+        axis.text.x = element_text(angle = 45, hjust = 1))+ #angles axis labels
+  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid") #color to fill
 ```
 ```{r, echo=FALSE, fig.show='hide'}
+#shortcut for patchwork
 mp <- multiple_plants %>%
   ggplot(aes(x = binomial_name,
              y = year_last_seen,
@@ -187,27 +195,35 @@ mp
 ```
 
 ```{r}
+#selects single species for each year range, this time for the associated acions
 multiple_actions <- action_data %>%
-  filter(binomial_name == c("Acalypha rubrinervis", "Agelanthus rondensis", "Angraecum muscicolum", "Betula gynoterminalis", "Cestrum flavescens", "Magnolia emarginata", "Corypha taliera"))
+  filter(binomial_name == c("Acalypha rubrinervis", 
+                            "Agelanthus rondensis", 
+                            "Angraecum muscicolum", 
+                            "Betula gynoterminalis", 
+                            "Cestrum flavescens", 
+                            "Magnolia emarginata", 
+                            "Corypha taliera"))
 ```
 
 ```{r}
 multiple_actions %>%
-  ggplot(aes(x = binomial_name,
-             y = action_type,
-             fill = binomial_name,
-             color = binomial_name))+
-  geom_point(size = 4)+ #changes point size)+
-  labs(x = "Binomial Name",
-       y = "Year Last Seen",
-       fill = "Action Type:")+
-  theme_light()+
+  ggplot(aes(x = binomial_name, #x axis
+             y = action_type, #y axis
+             fill = binomial_name, #point fill 
+             color = binomial_name))+ #color fill
+  geom_point(size = 4)+ #changes point size
+  labs(x = "Binomial Name", #x axis
+       y = "Year Last Seen", #y axis
+       fill = "Action Type:")+ #fills points and renames legend
+  theme_light()+ #b/w theme
   theme(text = element_text(family = "baskerville"), #adds font
-        axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_color_carto_d(name = "Action Type:", palette = "Antique")
+        axis.text.x = element_text(angle = 45, hjust = 1))+ #angles axis labels
+  scale_color_carto_d(name = "Action Type:", palette = "Antique") #color to fill
 ```
 
 ```{r, echo=FALSE, fig.show='hide'}
+#shorcut for patchwork plot
 ma <- multiple_actions %>%
   ggplot(aes(x = binomial_name,
              y = action_type,
@@ -225,12 +241,11 @@ ma
 ```
 
 ```{r, fig.height=5}
-ma + plot_spacer() + mp + plot_spacer()+ #combined plot
-  plot_annotation( 
+ma + plot_spacer() + mp + plot_spacer()+ #combined plot with spaces between them
+  plot_annotation( #adds title and caption
   title = 'Extinct Plant Species & Removal Actions Taken', #adds title
   caption = 'Source: Tidy Tuesday Data 2022-08-18 / IUCN Red List') & #adds caption, use & to make next code work
-  theme(plot.title = element_text(family = "baskerville"), #changes font
-        plot.subtitle = element_text(family = "baskerville"),
+  theme(plot.title = element_text(family = "baskerville"), #changes font,
         plot.caption = element_text(family = "baskerville"))
 ```
 
