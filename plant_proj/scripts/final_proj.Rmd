@@ -1,0 +1,237 @@
+---
+title: "Extinct Plant Species and their Root Causes"
+author: "Jocelyn Martinez Rico"
+date: "5/9/2022"
+output: 
+  tufte::tufte_html: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+Project description: An analysis on the causes for extinction of plant species. 
+
+# Load libraries
+```{r}
+library(here)
+library(tidyverse)
+library(dplyr)
+library(flair)
+library(rcartocolor)
+library(kableExtra)
+library(ggplot2)
+library(patchwork)
+library(showtext)
+```
+
+# Load data
+```{r}
+plant_data <- read_csv(here("plant_proj/data","plants.csv"))
+action_data <- read_csv(here("plant_proj/data","actions.csv"))
+threats_data <- read_csv(here("plant_proj/data","threats.csv"))
+```
+
+# Glimpse data
+```{r}
+glimpse(plant_data)
+glimpse(action_data)
+glimpse(threats_data)
+```
+
+```{r, echo=FALSE}
+#decorate("sixties_plants") %>% 
+#  flair("%>%", color = "green") %>%
+#  flair("country", color = "pink") %>%
+#  flair("year_last_seen", color = "CornflowerBlue") %>%
+#  flair("red_list_category", color = "orange") %>%
+#  flair("binomial_name", color = "red")
+```
+
+## Extinct Plants from 1960-1979
+```{r sixties_plants}
+sixties <- threats_data %>%
+  filter(country == "United States",
+         year_last_seen == "1960-1979", 
+         red_list_category == "Extinct") %>%
+  slice_max(binomial_name, n = 12)
+```
+
+```{r, echo=FALSE}
+#decorate("mn_threat") %>%
+#  flair("full_width", color = "green") %>%
+#  flair("html_font", color = "blue")
+```
+
+
+```{r mn_threat, fig.align='center', fig.width=5, fig.height=5}
+sixties %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+## Actions taken
+
+```{r}
+#decorate("actions1") %>% 
+#  flair("%>%", color = "green") %>%
+#  flair("country", color = "pink") %>%
+#  flair("year_last_seen", color = "CornflowerBlue") %>%
+#  flair("red_list_category", color = "orange") %>%
+#  flair("binomial_name", color = "red")
+```
+
+```{r actions1}
+actions1 <- action_data %>%
+  filter(country == "United States",
+         year_last_seen == "1960-1979", 
+         red_list_category == "Extinct",
+         binomial_name == "Melicope nealae") %>%
+  slice_max(binomial_name, n = 12)
+```
+
+```{r mn_actions}
+actions1 %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+```{r, echo=FALSE}
+#decorate("mn_actions") %>%
+#  flair("full_width", color = "green") %>%
+#  flair("html_font", color = "blue")
+```
+
+
+## Extinct Plants from 2000-2020
+```{r twothousands}
+present_day <- threats_data %>%
+  filter(country == "United States",
+         year_last_seen == "2000-2020",
+         red_list_category == "Extinct") %>%
+  slice_max(binomial_name, n = 12)
+```
+
+```{r ws_threat, fig.align='center', fig.width=5, fig.height=5}
+present_day %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+## Actions taken
+
+```{r}
+actions2 <- action_data %>%
+  filter(country == "United States",
+         year_last_seen == "2000-2020", 
+         red_list_category == "Extinct",
+         binomial_name == "Wikstroemia skottsbergiana") %>%
+  slice_max(binomial_name, n = 12)
+```
+
+```{r ws_actions}
+actions2 %>%
+  kbl() %>%
+  kable_classic(full_width = F, html_font = "Cambria")
+```
+
+# Multiple Species Analysis
+
+```{r}
+threats_data %>%
+  count(year_last_seen)
+```
+
+```{r}
+multiple_plants <- threats_data %>%
+  filter(binomial_name == c("Acalypha rubrinervis", "Agelanthus rondensis", "Angraecum muscicolum", "Betula gynoterminalis", "Cestrum flavescens", "Magnolia emarginata", "Corypha taliera"))
+```
+
+```{r, echo=FALSE}
+font_add(family = "baskerville", regular = "Baskerville.ttc")
+showtext_auto()
+```
+
+```{r}
+multiple_plants %>%
+  ggplot(aes(x = binomial_name,
+             y = year_last_seen,
+             fill = binomial_name,
+             color = binomial_name))+
+  geom_point(size = 4)+ #changes point size)+
+  labs(x = "Binomial Name",
+       y = "Year Last Seen",
+       fill = "Binomial Name:")+
+  theme_light()+
+  theme(text = element_text(family = "baskerville"), #adds font
+        axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid")
+```
+```{r, echo=FALSE, fig.show='hide'}
+mp <- multiple_plants %>%
+  ggplot(aes(x = binomial_name,
+             y = year_last_seen,
+             fill = binomial_name,
+             color = binomial_name))+
+  geom_point(size = 4)+ #changes point size)+
+  labs(x = "Binomial Name",
+       y = "Year Last Seen",
+       fill = "Binomial Name:")+
+  theme_light()+
+  theme(text = element_text(family = "baskerville"), #adds font
+        axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid")
+mp
+```
+
+```{r}
+multiple_actions <- action_data %>%
+  filter(binomial_name == c("Acalypha rubrinervis", "Agelanthus rondensis", "Angraecum muscicolum", "Betula gynoterminalis", "Cestrum flavescens", "Magnolia emarginata", "Corypha taliera"))
+```
+
+```{r}
+multiple_actions %>%
+  ggplot(aes(x = binomial_name,
+             y = action_type,
+             fill = binomial_name,
+             color = binomial_name))+
+  geom_point(size = 4)+ #changes point size)+
+  labs(x = "Binomial Name",
+       y = "Year Last Seen",
+       fill = "Action Type:")+
+  theme_light()+
+  theme(text = element_text(family = "baskerville"), #adds font
+        axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_carto_d(name = "Action Type:", palette = "Antique")
+```
+
+```{r, echo=FALSE, fig.show='hide'}
+ma <- multiple_actions %>%
+  ggplot(aes(x = binomial_name,
+             y = action_type,
+             fill = binomial_name,
+             color = binomial_name))+
+  geom_point(size = 4)+ #changes point size)+
+  labs(x = "Binomial Name",
+       y = "Action Type",
+       fill = "Action Type:")+
+  theme_light()+
+  theme(text = element_text(family = "baskerville"), #adds font
+        axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_color_carto_d(name = "Action Type:", palette = "Antique")
+ma
+```
+
+```{r, fig.height=5}
+ma + plot_spacer() + mp + plot_spacer()+ #combined plot
+  plot_annotation( 
+  title = 'Extinct Plant Species & Removal Actions Taken', #adds title
+  caption = 'Source: Tidy Tuesday Data 2022-08-18 / IUCN Red List') & #adds caption, use & to make next code work
+  theme(plot.title = element_text(family = "baskerville"), #changes font
+        plot.subtitle = element_text(family = "baskerville"),
+        plot.caption = element_text(family = "baskerville"))
+```
+
+

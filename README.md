@@ -2,7 +2,7 @@
 
 ## Jocelyn's Final Idependent Project Repository
 
-Project Description: Analysis for endangered plants and their underlying threats.
+Project Description: Analysis for extinct plants and their underlying threats.
 
 ---
 
