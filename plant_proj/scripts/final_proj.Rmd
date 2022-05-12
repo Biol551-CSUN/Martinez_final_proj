@@ -3,7 +3,9 @@ title: "Extinct Plant Species and their Root Causes"
 author: "Jocelyn Martinez Rico"
 date: "5/9/2022"
 output: 
-  tufte::tufte_html: default
+   prettydoc::html_pretty:
+    theme: architect
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -12,7 +14,9 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # Introduction
 
-Project description: An analysis on the causes for extinction of plant species. 
+Project description: An analysis on the causes for extinction of plant species from before the 1900s to 2020 in Madagascar and Mexico. 
+
+Data taken from the [International Union for Conservation of Nature (IUCN) Red list of Threatened Species](https://www.iucnredlist.org/) and curated by [Florent Lavergne](https://www.behance.net/florentlavergne) for Tidy Tuesday [2020-08-18](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-08-18/readme.md). 
 
 # Load libraries
 ```{r}
@@ -25,6 +29,7 @@ library(kableExtra)
 library(ggplot2)
 library(patchwork)
 library(showtext)
+library(prettydoc)
 ```
 
 # Load data
@@ -34,88 +39,64 @@ action_data <- read_csv(here("plant_proj/data","actions.csv"))
 threats_data <- read_csv(here("plant_proj/data","threats.csv"))
 ```
 
+# Data wrangling
+
+```{r}
+#remove zero values
+clean_threat <- filter(threats_data, threatened > 0)
+clean_action <- filter(action_data, action_taken > 0)
+```
+
 # Glimpse data
 ```{r}
-glimpse(plant_data)
-glimpse(action_data)
-glimpse(threats_data)
+head(clean_action)
+head(clean_threat)
 ```
 
-```{r, echo=FALSE}
-#decorate("sixties_plants") %>% 
-#  flair("%>%", color = "green") %>%
-#  flair("country", color = "pink") %>%
-#  flair("year_last_seen", color = "CornflowerBlue") %>%
-#  flair("red_list_category", color = "orange") %>%
-#  flair("binomial_name", color = "red")
-```
+# Extinct Plants from 1920-1939 in North America
 
-## Extinct Plants from 1960-1979
-```{r sixties_plants}
-sixties <- threats_data %>%
-  filter(country == "United States", #selects plants in US
-         year_last_seen == "1960-1979", #year range
-         red_list_category == "Extinct") %>% #selects extinct plants
-  slice_max(binomial_name, n = 12) #selects 12 rows
-```
-
-```{r, echo=FALSE}
-#decorate("mn_threat") %>%
-#  flair("full_width", color = "green") %>%
-#  flair("html_font", color = "blue")
+```{r}
+north <- clean_threat %>%
+  filter(continent == "North America", #selects species in North America
+         year_last_seen == "1920-1939", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) %>% #selects extinct plants
+  slice_max(binomial_name, n = 25) #selects 25 rows
 ```
 
 
-```{r mn_threat, fig.align='center', fig.width=5, fig.height=5}
-sixties %>%
-  kbl() %>% #base cose for table
+```{r, fig.align='center', fig.width=5, fig.height=5}
+north %>%
+  kbl() %>% #base code for table
   kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
-## Actions taken
+## Actions taken 
 
 ```{r}
-#decorate("actions1") %>% 
-#  flair("%>%", color = "green") %>%
-#  flair("country", color = "pink") %>%
-#  flair("year_last_seen", color = "CornflowerBlue") %>%
-#  flair("red_list_category", color = "orange") %>%
-#  flair("binomial_name", color = "red")
+actions1 <- clean_action %>%
+  filter(continent == "North America", #selects plants in North America
+         year_last_seen == "1920-1939", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) %>% #selects extinct plants in range
+  slice_max(binomial_name, n = 25) #selects 25 rows
 ```
 
-```{r actions1}
-actions1 <- action_data %>%
-  filter(country == "United States", #selects plants in US
-         year_last_seen == "1960-1979", #year range
-         red_list_category == "Extinct", #selects entinct plants in range
-         binomial_name == "Melicope nealae") %>% #Filters for specific species
-  slice_max(binomial_name, n = 12) #selects 12 rows
-```
-
-```{r mn_actions}
+```{r}
 actions1 %>%
   kbl() %>% #base code for table
   kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
-```{r, echo=FALSE}
-#decorate("mn_actions") %>%
-#  flair("full_width", color = "green") %>%
-#  flair("html_font", color = "blue")
-```
 
-
-## Extinct Plants from 2000-2020
-```{r twothousands}
-present_day <- threats_data %>%
-  filter(country == "United States", #selects plants in US
+# Extinct Plants from 2000-2020 in North America
+```{r}
+two_north <- clean_threat %>%
+  filter(continent == "North America", #selects plants in North America
          year_last_seen == "2000-2020", #year range
-         red_list_category == "Extinct") %>% #selects extinct plants
-  slice_max(binomial_name, n = 12) #selects 22 rows
+         red_list_category %in% c("Extinct","Extinct in the Wild")) #selects extinct plants
 ```
 
-```{r ws_threat, fig.align='center', fig.width=5, fig.height=5}
-present_day %>%
+```{r, fig.align='center', fig.width=5, fig.height=5}
+two_north %>%
   kbl() %>% #base code for table
   kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
@@ -123,37 +104,83 @@ present_day %>%
 ## Actions taken
 
 ```{r}
-actions2 <- action_data %>%
-  filter(country == "United States", #seletcs plants in US
+actions2 <- clean_action %>%
+  filter(continent == "North America", #selects plants in North America
          year_last_seen == "2000-2020", #year range
-         red_list_category == "Extinct", #selects extinct plants
-         binomial_name == "Wikstroemia skottsbergiana") %>% #selects specific species
-  slice_max(binomial_name, n = 12) #selects 12 rows
+         red_list_category %in% c("Extinct","Extinct in the Wild")) #selects extinct plants
 ```
 
-```{r ws_actions}
+```{r}
 actions2 %>%
   kbl() %>% #base code for table
   kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
 ```
 
-# Multiple Species Analysis
+# Extinct Plants from 1920-1939 in South America
 
 ```{r}
-threats_data %>%
-  count(year_last_seen) #displays year ranges
+south <- clean_threat %>%
+  filter(continent == "South America", #selects plants in South America
+         year_last_seen == "1920-1939", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) %>% #selects extinct plants
+  slice_max(binomial_name, n = 25) #selects 25 rows
 ```
 
 ```{r}
-# single plant species taken from each year range
-multiple_plants <- threats_data %>%
-  filter(binomial_name == c("Acalypha rubrinervis", 
-                            "Agelanthus rondensis", 
-                            "Angraecum muscicolum", 
-                            "Betula gynoterminalis", 
-                            "Cestrum flavescens", 
-                            "Magnolia emarginata", 
-                            "Corypha taliera"))
+south %>%
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
+```
+
+## Actions taken 
+```{r}
+actions3 <- clean_action %>%
+  filter(continent == "South America", #selects plants in North America
+         year_last_seen == "2000-2020", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) #selects extinct plants
+```
+
+```{r}
+actions3 %>%
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
+```
+
+# Extinct Plants from 2000-2020 in South America
+
+```{r}
+two_south <- clean_threat %>%
+  filter(continent == "South America", #selects plants in North America
+         year_last_seen == "2000-2020", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) #selects extinct plants
+```
+
+```{r}
+two_south %>%
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
+```
+
+## Actions taken
+
+```{r}
+actions4 <- clean_action %>%
+  filter(continent == "South America", #selects plants in North America
+         year_last_seen == "2000-2020", #year range
+         red_list_category %in% c("Extinct","Extinct in the Wild")) #selects extinct plants
+```
+
+```{r}
+actions4 %>%
+  kbl() %>% #base code for table
+  kable_classic(full_width = F, html_font = "Cambria") #adds theme and font
+```
+
+# Threat type analysis
+
+```{r}
+threat_count <- clean_threat %>%
+  select(threat_type, group) #selects type counts
 ```
 
 ```{r, echo=FALSE}
@@ -162,59 +189,37 @@ showtext_auto()
 ```
 
 ```{r}
-multiple_plants %>%
-  ggplot(aes(x = binomial_name, #x axis
-             y = year_last_seen, #y axis
-             fill = binomial_name, #point fill
-             color = binomial_name))+ #color fill
+threat_count %>%
+  ggplot(aes(x = threat_type, #x axis
+             y = group, #y axis
+             fill = threat_type, #point fill
+             color = threat_type))+ #color fill
   geom_point(size = 4)+ #changes point size
-  labs(x = "Binomial Name", #x axis
-       y = "Year Last Seen", #y axis
-       fill = "Binomial Name:")+ #fills points and renames legend
+  labs(x = "Threat Type", #x axis
+       y = "Type of Plant", #y axis
+       fill = "Threat Type:")+ #fills points and renames legend
   theme_light()+ #b/w theme
   theme(text = element_text(family = "baskerville"), #adds font
         axis.text.x = element_text(angle = 45, hjust = 1))+ #angles axis labels
-  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid") #color to fill
+  scale_color_carto_d(name = "Threat Type:", palette = "Vivid") #color to fill
 ```
-```{r, echo=FALSE, fig.show='hide'}
-#shortcut for patchwork
-mp <- multiple_plants %>%
-  ggplot(aes(x = binomial_name,
-             y = year_last_seen,
-             fill = binomial_name,
-             color = binomial_name))+
-  geom_point(size = 4)+ #changes point size)+
-  labs(x = "Binomial Name",
-       y = "Year Last Seen",
-       fill = "Binomial Name:")+
-  theme_light()+
-  theme(text = element_text(family = "baskerville"), #adds font
-        axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_color_carto_d(name = "Binomial Name:", palette = "Vivid")
-mp
+
+# Action type analysis
+
+```{r}
+action_count <- clean_action %>%
+  select(action_type, group) #selects type counts
 ```
 
 ```{r}
-#selects single species for each year range, this time for the associated acions
-multiple_actions <- action_data %>%
-  filter(binomial_name == c("Acalypha rubrinervis", 
-                            "Agelanthus rondensis", 
-                            "Angraecum muscicolum", 
-                            "Betula gynoterminalis", 
-                            "Cestrum flavescens", 
-                            "Magnolia emarginata", 
-                            "Corypha taliera"))
-```
-
-```{r}
-multiple_actions %>%
-  ggplot(aes(x = binomial_name, #x axis
-             y = action_type, #y axis
-             fill = binomial_name, #point fill 
-             color = binomial_name))+ #color fill
+action_count %>%
+  ggplot(aes(x = action_type, #x axis
+             y = group, #y axis
+             fill = action_type, #point fill 
+             color = action_type))+ #color fill
   geom_point(size = 4)+ #changes point size
-  labs(x = "Binomial Name", #x axis
-       y = "Year Last Seen", #y axis
+  labs(x = "Action Type", #x axis
+       y = "Type of Plant", #y axis
        fill = "Action Type:")+ #fills points and renames legend
   theme_light()+ #b/w theme
   theme(text = element_text(family = "baskerville"), #adds font
@@ -222,31 +227,5 @@ multiple_actions %>%
   scale_color_carto_d(name = "Action Type:", palette = "Antique") #color to fill
 ```
 
-```{r, echo=FALSE, fig.show='hide'}
-#shorcut for patchwork plot
-ma <- multiple_actions %>%
-  ggplot(aes(x = binomial_name,
-             y = action_type,
-             fill = binomial_name,
-             color = binomial_name))+
-  geom_point(size = 4)+ #changes point size)+
-  labs(x = "Binomial Name",
-       y = "Action Type",
-       fill = "Action Type:")+
-  theme_light()+
-  theme(text = element_text(family = "baskerville"), #adds font
-        axis.text.x = element_text(angle = 45, hjust = 1))+
-  scale_color_carto_d(name = "Action Type:", palette = "Antique")
-ma
-```
-
-```{r, fig.height=5}
-ma + plot_spacer() + mp + plot_spacer()+ #combined plot with spaces between them
-  plot_annotation( #adds title and caption
-  title = 'Extinct Plant Species & Removal Actions Taken', #adds title
-  caption = 'Source: Tidy Tuesday Data 2022-08-18 / IUCN Red List') & #adds caption, use & to make next code work
-  theme(plot.title = element_text(family = "baskerville"), #changes font,
-        plot.caption = element_text(family = "baskerville"))
-```
 
 
