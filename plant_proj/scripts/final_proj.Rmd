@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 # Introduction
 
-Project description: An analysis on the causes for extinction of plant species from before the 1900s to 2020 in Madagascar and Mexico. 
+Project description: An analysis on the causes for extinction of plant species from before the 1900s to 2020 in North and South America.
 
 Data taken from the [International Union for Conservation of Nature (IUCN) Red list of Threatened Species](https://www.iucnredlist.org/) and curated by [Florent Lavergne](https://www.behance.net/florentlavergne) for Tidy Tuesday [2020-08-18](https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-08-18/readme.md). 
 
